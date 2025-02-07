@@ -13,23 +13,25 @@ interface Frame {
 
 export function jsonPathTo(text: string, offset: number, separatorType: string) {
   let pos = 0;
-  let stack: Frame[] = [];
+  const stack: Frame[] = [];
   let isInKey = false;
 
   while (pos < offset) {
     const startPos = pos;
     switch (text[pos]) {
       case '"':
-        const { text: s, pos: newPos } = readString(text, pos);
-        if (stack.length) {
-          const frame = stack[stack.length - 1];
-          if (frame.colType === ColType.Object && isInKey) {
-            frame.key = s;
-            isInKey = false;
+        {
+          const { text: s, pos: newPos } = readString(text, pos);
+          if (stack.length) {
+            const frame = stack[stack.length - 1];
+            if (frame.colType === ColType.Object && isInKey) {
+              frame.key = s;
+              isInKey = false;
+            }
           }
+          pos = newPos;
+          break;
         }
-        pos = newPos;
-        break;
       case "{":
         stack.push({ colType: ColType.Object });
         isInKey = true;
@@ -110,8 +112,8 @@ function pathToStringIndexes(path: Frame[]): string {
 }
 
 function readString(text: string, pos: number): { text: string; pos: number } {
-  let i = findEndQuote(text, pos + 1);
-  var textPos = {
+  const i = findEndQuote(text, pos + 1);
+  const textPos = {
     text: text.substring(pos + 1, i),
     pos: i + 1,
   };
